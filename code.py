@@ -66,8 +66,8 @@ model = Sequential()
 model.add(Embedding(len(vectorizer.get_feature_names()) + 1,
                     64,  # Embedding size
                     input_length=MAX_SEQ_LENGTH))
-model.add(Conv1D(64, 5, activation='relu'))
-model.add(MaxPooling1D(5))
+model.add(Conv1D(64, 15, activation='relu'))
+model.add(MaxPooling1D(15))
 model.add(Flatten())
 model.add(Dense(units=64, activation='relu'))
 model.add(Dense(units=1, activation='sigmoid'))
@@ -78,7 +78,7 @@ model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']
 model.fit(X_train_sequences[:-100], y_train[:-100], 
           epochs=3, batch_size=512, verbose=1,
           validation_data=(X_train_sequences[-100:], y_train[-100:]))
-	
+
 X_test_sequences = [to_sequence(tokenize, preprocess, word2idx, x) for x in X_test]
 X_test_sequences = pad_sequences(X_test_sequences, maxlen=MAX_SEQ_LENGTH, value=N_FEATURES)
 
