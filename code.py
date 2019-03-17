@@ -23,9 +23,9 @@ fdT         = open(sys.argv[1], mode='rb')
 fdS         = open(sys.argv[2], mode='r')
 
 # Read data in and out into a array/matrix like form
-dfTextBin      = fdT.readlines() 
-dfText      = [str(i) for i in dfTextBin]
-dfSentiment = fdS.readlines() 
+dfTextBin      	= fdT.readlines() 
+dfText      	= [str(i) for i in dfTextBin]
+dfSentiment 	= fdS.readlines() 
 
 # Shuffle the data and then split it, keeping 20% aside for testing
 aX_train, aX_test, ay_train, ay_test = train_test_split(dfText, dfSentiment, test_size=0.2)
