@@ -50,21 +50,26 @@ class DataGenerator(keras.utils.Sequence):
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
-          fdT = open('data/split_data/reviewText_' + str(i))
-          fdS = open('data/split_data/reviewFunny_' + str(i))
-          dfTextBin         = fdT.readlines() 
-          dfText        = [str(i) for i in dfTextBin]
-          dfSentiment   = fdS.readlines() 
+            fdT = open('data/splitText/reviewText_' + str(i), mode='rb')
+            fdS = open('data/splitFunny/reviewFunny_' + str(i))
 
-          X_train = np.array(aX_train)
-          X_test  = np.array(aX_test)
-          y_train = np.array(ay_train)
-          y_test  = np.array(ay_test)
-          # Store sample
-          #X[i,] = np.loadtxt('data/split_data/reviewText_' + i) #Need this to match our file system
+            dfTextBin         = fdT.readlines() 
+            dfText            = [str(i) for i in dfTextBin]
+            dfSentiment       = fdS.readlines() 
 
-          # Store class
-          y[i] = self.labels[ID] #Get label from list of labels which is found in the funny files
+            aX_train, aX_test, ay_train, ay_test = train_test_split(dfText, dfSentiment, test_size=0.2)
+            X_train = np.array(aX_train)
+            X_test  = np.array(aX_test)
+            y_train = np.array(ay_train)
+            y_test  = np.array(ay_test)
+            # Store sample
+            #X[i,] = np.loadtxt('data/split_data/reviewText_' + i) #Need this to match our file system
+
+            # Store class
+            y[i] = self.labels[ID] #Get label from list of labels which is found in the funny files
+
+            fdT.close()
+            fdS.close()
 
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes)
 
