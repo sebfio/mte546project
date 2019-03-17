@@ -26,11 +26,13 @@ params = {'dim': (32,32,32),
 
 
 #Need partition dictionary which contains the training and the validation ids
-reviewFiles = open(sys.argv[1], mode='rb')
-funnyFiles = open(sys.argv[2], mode='r')
+#reviewFiles = open(sys.argv[1], mode='rb')
+#unnyFiles = open(sys.argv[2], mode='r')
 
-aX_train, aX_test, ay_train, ay_test = train_test_split(reviewFiles, funnyFiles, test_size=0.2)
+#aX_train, aX_test, ay_train, ay_test = train_test_split(reviewFiles, funnyFiles, test_size=0.2)
 
+vectorizer = CountVectorizer(binary=True, stop_words=stopwords.words('english'), 
+                             lowercase=True, min_df=3, max_df=0.9, max_features=5000)
 
 model = Sequential()
 model.add(Embedding(len(vectorizer.get_feature_names()) + 1,
@@ -44,8 +46,8 @@ model.add(Dense(units=1, activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']) #They use a different one in the tutorial, rms or something
 
-training_generator = DataGenerator(partition['train'], labels, **params)
-validation_generator = DataGenerator(partition['validation'], labels, **params)
+training_generator = DataGenerator(partition['train'], labels, **params,train=1)
+validation_generator = DataGenerator(partition['validation'], labels, **params, train=0)
 
 
 
