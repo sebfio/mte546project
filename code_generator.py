@@ -4,6 +4,7 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
+from keras.preprocessing.sequence import pad_sequences
 
 import pandas as pd
 import re
@@ -13,26 +14,37 @@ from numpy import array
 import os
 import textwrap
 
-#from sklearn.feature_extraction.text import CountVectorizer
-#from sklearn.linear_model import LogisticRegression
-#from sklearn.model_selection import train_test_split
-#from sklearn.neural_network import MLPClassifier
-#
-#from nltk.corpus import stopwords
-#
-#from keras.models import Sequential
-#from keras.layers import Dense, Conv1D, MaxPooling1D, Flatten, Embedding
-#from keras.preprocessing.text import one_hot
-#from keras.preprocessing.sequence import pad_sequences
-#from keras.preprocessing.text import Tokenizer
-
 MAX_LENGTH_SEQ  = 180 
 BS              = 50
 NUM_PER_FILE    = 5000
 
-vocab_size=10000
+vocab_size = 7000
 
 max_words_review = 300
+
+def create_embedding_matrix(filepath, embedding_dim):
+    embedding_matrix = np.zeros((vocab_size, embedding_dim))
+    wordBank = dict()
+    wordsProcessed = 1
+    with open(filepath) as f:
+        for line in f:
+            if wordsProcessed > vocab_size - 1:
+                break
+
+            # Split the word with the numbers
+            word, *vector = line.split()
+            # Add token ID
+            wordBank[word]=wordsProcessed
+
+            embedding_matrix[wordsProcessed] = np.array(
+                vector, dtype=np.float32)[:embedding_dim]
+
+            wordsProcessed += 1
+
+    return embedding_matrix, wordBank
+
+embedding_dim = 50
+embedding_matrix, word_bank = create_embedding_matrix('glove/glove.6B.50d.txt', embedding_dim)
 
 def dataGenerator(filePathText, filePathFunny):
     filesText   = [name for name in os.listdir(filePathText)]
@@ -49,8 +61,8 @@ def dataGenerator(filePathText, filePathFunny):
             fullTextFileName = filePathText + "/" + filesText[i]
             fullFunnyFileName = filePathFunny + "/" + filename_funny
 
-            print(fullTextFileName)
-            print(fullFunnyFileName)
+            #print(fullTextFileName)
+            #print(fullFunnyFileName)
 
             fdT         = open(fullTextFileName, mode='rb')
             fdS         = open(fullFunnyFileName, mode='r')
@@ -58,22 +70,22 @@ def dataGenerator(filePathText, filePathFunny):
             # Read data in and out into a array/matrix like form
             dfTextBin       = fdT.readlines() 
             dfTextLong      = [str(i) for i in dfTextBin]
-            dfText          = [' '.join(item.split()[:max_words_review]) for item in dfTextLong if item]
+            dfText          = [i.replace("\\", "") for i in dfTextLong]
+            dfText          = [i.replace(".", " ") for i in dfTextLong]
+            dfText          = [' '.join(item.split()[:max_words_review - 1]) for item in dfTextLong if item]
             dfSentiment     = fdS.readlines() 
-
-            #print("============")
-            #print(len(dfText))
-            #print(len(dfSentiment))
             
-            X_train = np.array(dfText)
-            y_train = np.array(dfSentiment)
+            frequencyArray = np.zeros((len(dfText), max_words_review))
+            for i, review in enumerate(dfText):
+                for j, word in enumerate(review.split(' ')):
+                    frequencyArray[i][j] = word_bank[word] if word in word_bank else 0
 
-            padded_X_train = sequence.pad_sequences(X_train, maxlen=max_words_review)
+            y_train = np.array(dfSentiment)
 
             fdT.close()
             fdS.close()
 
-            yield(padded_X_train, y_train)
+            yield(frequencyArray, y_train)
         
 ## Get functors for generation of train and test data
 trainTextPath   = "data/trainText"
@@ -85,7 +97,7 @@ testGen     = dataGenerator(testTextPath, testFunnyPath)
 
 model = Sequential()
 embedding_vector_length = 50 
-model.add(Embedding(vocab_size, embedding_vector_length, input_length=max_words_review))
+model.add(Embedding(vocab_size, embedding_dim, weights=[embedding_matrix], input_length=max_words_review))
 model.add(LSTM(100))
 model.add(Dense(1, activation='sigmoid')) 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
