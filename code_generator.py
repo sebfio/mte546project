@@ -10,10 +10,6 @@ import pandas as pd
 import numpy as np
 import os
 
-MAX_LENGTH_SEQ  = 180 
-BS              = 50
-NUM_PER_FILE    = 5000
-
 vocab_size = 10000
 
 max_words_review = 300
