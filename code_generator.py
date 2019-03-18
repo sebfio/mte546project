@@ -20,7 +20,7 @@ MAX_LENGTH_SEQ  = 180
 BS              = 50
 NUM_PER_FILE    = 5000
 
-vocab_size = 7000
+vocab_size = 10000
 
 max_words_review = 300
 
@@ -82,7 +82,7 @@ def dataGenerator(filePathText, filePathFunny):
                 for j, word in enumerate(review.split(' ')):
                     frequencyArray[i][j] = word_bank[word] if word in word_bank else 0
 
-            y_train = np.array(dfSentiment)
+            y_train = np.array([1 for i in dfSentiment if i > 0 else 0])
 
             fdT.close()
             fdS.close()
@@ -103,7 +103,7 @@ model.add(Embedding(input_dim=vocab_size,
                            input_length=max_words_review))
 model.add(LSTM(32))
 model.add(Dropout(0.5))
-model.add(Dense(1, activation='sigmoid'))
+model.add(Dense(1, activation='relu'))
 
 # model.add(Embedding(vocab_size, embedding_dim, weights=[embedding_matrix], input_length=max_words_review))
 # model.add(LSTM(100))
