@@ -59,6 +59,8 @@ print("Evaluating sentence %s" % sys.argv[3])
 
 frequencyArray = np.zeros((1,max_words_review))
 for j, word in enumerate(sys.argv[3].split(' ')):
+    if j >= max_words_review:
+        break
     frequencyArray[0][j] = word_bank[word] if word in word_bank else 0
 
 predict = model.predict(frequencyArray)

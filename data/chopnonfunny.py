@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 from random import random
 
 textFolder      = sys.argv[1]
@@ -22,25 +23,30 @@ for f in os.listdir(textFolder):
     textFile    = textFolder + "/" + f
     funnyFile   = funnyFolder + "/" + funnyF
 
+    textFileNew     = textFolder_new    + "/" + f
+    funnyFileNew    = funnyFolder_new   + "/" + funnyF
+
     fdT = open(textFile, "rb")
     fdS = open(funnyFile, "r")
 
     dfTextBin       = fdT.readlines() 
-    dfText          = [str(i) for i in dfTextBin]
+    dfTextLong      = [str(i) for i in dfTextBin]
+    dfText          = [i.lower() for i in dfTextLong]
+    dfText          = [re.sub(r'[^a-z ]', '', i) for i in dfText]
     dfSentiment     = fdS.readlines() 
 
-    fdTNew = open(textFolder_new    + "/" + f, "wb")
-    fdSNew = open(funnyFolder_new   + "/" + funnyF, "w")
+    fdTNew = open(textFileNew, "wb")
+    fdSNew = open(funnyFileNew, "w")
 
     assert(len(dfText) == len(dfSentiment))
 
     for i, strval in enumerate(dfSentiment):
         val = int(strval)
         
-        if val == 0 and random() < float(sys.argv[3]):
+        if val < 2 and random() < float(sys.argv[3]):
             continue
 
-        fdTNew.write(bytes(dfText[i], 'utf-8'))
+        fdTNew.write(bytes(dfText[i] + "\n", 'utf-8'))
         fdSNew.write(dfSentiment[i])
     
     fdT.close()
@@ -48,14 +54,13 @@ for f in os.listdir(textFolder):
     fdTNew.close()
     fdSNew.close()
 
-    fdTNew = open(textFolder_new    + "/" + f, "rb")
-    fdSNew = open(funnyFolder_new   + "/" + funnyF, "r")
+    fdTNew = open(textFileNew, "rb")
+    fdSNew = open(funnyFileNew, "r")
 
     dfTextBin       = fdTNew.readlines() 
     dfText          = [str(i) for i in dfTextBin]
     dfSentiment     = fdSNew.readlines() 
-    print(len(dfText))
-    print(len(dfSentiment))
+
     assert(len(dfText) == len(dfSentiment))
 
     fdTNew.close()

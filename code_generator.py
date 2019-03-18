@@ -97,7 +97,7 @@ model.add(Embedding(input_dim=vocab_size,
                            output_dim=embedding_dim, 
                            input_length=max_words_review))
 
-model.add(Conv1D(50, 25, activation='relu'))
+model.add(Conv1D(60, 25, activation='relu'))
 model.add(MaxPooling1D(25))
 model.add(Flatten())
 model.add(Dense(units=50, activation='relu'))
