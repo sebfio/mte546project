@@ -5,16 +5,10 @@ from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.layers import Flatten
-from keras.preprocessing import sequence
-from keras.preprocessing.sequence import pad_sequences
 
 import pandas as pd
-import re
-import sys
 import numpy as np
-from numpy import array
 import os
-import textwrap
 
 MAX_LENGTH_SEQ  = 180 
 BS              = 50
