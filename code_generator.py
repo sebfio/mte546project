@@ -82,7 +82,7 @@ def dataGenerator(filePathText, filePathFunny):
                 for j, word in enumerate(review.split(' ')):
                     frequencyArray[i][j] = word_bank[word] if word in word_bank else 0
 
-            y_train = np.array([1 for i in dfSentiment if i > 0 else 0])
+            y_train = np.array([1 if int(i) > 0 else 0 for i in dfSentiment])
 
             fdT.close()
             fdS.close()
