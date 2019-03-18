@@ -71,9 +71,6 @@ def generate_batches(reviewFiles, funnyFiles, batch_size):
      for cbatch in range(0, X_train.shape[0], batch_size):
          yield (X_train[cbatch:(cbatch + batch_size),:,:], y_train[cbatch:(cbatch + batch_size)])
 
-# model = Sequential()
-# model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-
 # train_files = [train_bundle_loc + "bundle_" + cb.__str__() for cb in range(nb_train_bundles)]
 # gen = generate_batches(files=train_files, batch_size=batch_size)
 # history = model.fit_generator(gen, samples_per_epoch=samples_per_epoch, nb_epoch=num_epoch,verbose=1, class_weight=class_weights)
@@ -132,6 +129,7 @@ X_train_sequences = pad_sequences(X_train_sequences, maxlen=MAX_SEQ_LENGTH, valu
 #print(X_train_sequences[0])
 
 model = Sequential()
+## Model architecture
 model.add(Embedding(len(vectorizer.get_feature_names()) + 1,
                     64,  # Embedding size
                     input_length=MAX_SEQ_LENGTH))
@@ -140,10 +138,13 @@ model.add(MaxPooling1D(15))
 model.add(Flatten())
 model.add(Dense(units=64, activation='relu'))
 model.add(Dense(units=1, activation='sigmoid'))
- 
+
+## Generate model architecture
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 batchSize = 512
+
+
 model.fit(X_train_sequences[:-100], y_train[:-100], #Fit set for small datasets
           epochs=3, batch_size=batchSize, verbose=1,
           validation_data=(X_train_sequences[-100:], y_train[-100:]))
