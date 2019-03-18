@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.layers import Flatten
@@ -100,8 +101,8 @@ model = Sequential()
 model.add(Embedding(input_dim=vocab_size, 
                            output_dim=embedding_dim, 
                            input_length=max_words_review))
-model.add(Flatten())
-model.add(Dense(10, activation='relu'))
+model.add(LSTM(32))
+model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
 
 # model.add(Embedding(vocab_size, embedding_dim, weights=[embedding_matrix], input_length=max_words_review))
@@ -120,7 +121,7 @@ model.fit_generator(trainGen,
                 validation_data=testGen,
                 validation_steps=stepsTest,
                 epochs=3,
-                shuffle=False,
+                shuffle=True,
                 verbose=1)
 
 model.save('trainedFunnyYelp.neural_net')
