@@ -15,6 +15,7 @@ import numpy as np
 from numpy import array
 import os
 import textwrap
+import signal
 
 MAX_LENGTH_SEQ  = 180 
 BS              = 50
@@ -72,8 +73,8 @@ def dataGenerator(filePathText, filePathFunny):
             # Read data in and out into a array/matrix like form
             dfTextBin       = fdT.readlines() 
             dfTextLong      = [str(i) for i in dfTextBin]
-            dfText          = [i.replace("\\", "") for i in dfTextLong]
-            dfText          = [i.replace(".", " ") for i in dfTextLong]
+            dfText          = [i.lower() for i in dfTextLong]
+            dfText          = [re.sub(r'[^a-z ]', '', i) for i in dfText]
             dfText          = [' '.join(item.split()[:max_words_review - 1]) for item in dfTextLong if item]
             dfSentiment     = fdS.readlines() 
             
@@ -101,26 +102,37 @@ model = Sequential()
 model.add(Embedding(input_dim=vocab_size, 
                            output_dim=embedding_dim, 
                            input_length=max_words_review))
-model.add(LSTM(32))
+model.add(LSTM(40))
 model.add(Dropout(0.5))
-model.add(Dense(1, activation='relu'))
+#model.add(Dense(60, activation='sigmoid'))
+model.add(Dense(500, activation='sigmoid'))
+model.add(Dense(100, activation='sigmoid'))
+model.add(Dense(10, activation='sigmoid'))
+model.add(Dense(1, activation='sigmoid'))
 
-# model.add(Embedding(vocab_size, embedding_dim, weights=[embedding_matrix], input_length=max_words_review))
-# model.add(LSTM(100))
-# model.add(Dense(1, activation='sigmoid')) 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model_json = model.to_json()
+with open("model.json", "w") as json_file:
+    json_file.write(model_json)
 print(model.summary())
 
 filesTrain  = [name for name in os.listdir(trainTextPath)]
 stepsTrain  = len(filesTrain)
 filesTest   = [name for name in os.listdir(testTextPath)]
 stepsTest   = len(filesTest)
-     
+
+def handler(signum, frame):
+    print("Got kill signal, saving model anyways")
+    model.save('trainedFunnyYelp.neural_net')
+    sys.exit(1)
+
+signal.signal(signal.SIGINT, handler)
+
 model.fit_generator(trainGen, 
                 steps_per_epoch=stepsTrain,
                 validation_data=testGen,
                 validation_steps=stepsTest,
-                epochs=3,
+                epochs=2,
                 shuffle=True,
                 verbose=1)
 
