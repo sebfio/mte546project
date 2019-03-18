@@ -5,14 +5,18 @@ from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.layers import Flatten
+from keras.layers import Dense, Conv1D, Flatten, MaxPooling1D
 
 import pandas as pd
 import numpy as np
 import os
+import re
+import signal
+import sys
 
 vocab_size = 10000
 
-max_words_review = 300
+max_words_review = 100
 
 def create_embedding_matrix(filepath, embedding_dim):
     embedding_matrix = np.zeros((vocab_size, embedding_dim))
@@ -84,6 +88,7 @@ trainTextPath   = "data/trainText"
 trainFunnyPath  = "data/trainFunny"
 testTextPath    = "data/testText"
 testFunnyPath   = "data/testFunny"
+
 trainGen    = dataGenerator(trainTextPath, trainFunnyPath)
 testGen     = dataGenerator(testTextPath, testFunnyPath)
 
@@ -91,13 +96,19 @@ model = Sequential()
 model.add(Embedding(input_dim=vocab_size, 
                            output_dim=embedding_dim, 
                            input_length=max_words_review))
-model.add(LSTM(40))
-model.add(Dropout(0.5))
-#model.add(Dense(60, activation='sigmoid'))
-model.add(Dense(500, activation='sigmoid'))
-model.add(Dense(100, activation='sigmoid'))
-model.add(Dense(10, activation='sigmoid'))
-model.add(Dense(1, activation='sigmoid'))
+
+model.add(Conv1D(50, 25, activation='relu'))
+model.add(MaxPooling1D(25))
+model.add(Flatten())
+model.add(Dense(units=50, activation='relu'))
+model.add(Dense(units=1, activation='sigmoid'))
+# model.add(LSTM(50))
+# model.add(Dropout(0.1))
+# #model.add(Dense(60, activation='sigmoid'))
+# model.add(Dense(500, activation='sigmoid'))
+# model.add(Dense(100, activation='sigmoid'))
+# model.add(Dense(10, activation='sigmoid'))
+# model.add(Dense(1, activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 model_json = model.to_json()

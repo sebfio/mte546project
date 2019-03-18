@@ -18,7 +18,7 @@ import os
 import textwrap
 
 vocab_size = 10000
-max_words_review = 300
+max_words_review = 100
 
 def create_embedding_matrix(filepath, embedding_dim):
     embedding_matrix = np.zeros((vocab_size, embedding_dim))
