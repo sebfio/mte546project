@@ -1,3 +1,5 @@
 data/*
 lib*
 *.pdf
+venv/*
+bin/*
