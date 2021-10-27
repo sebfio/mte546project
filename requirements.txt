@@ -1,7 +1,7 @@
 absl-py==0.7.1
 astor==0.7.1
 cloudpickle==0.8.0
-dask==1.1.4
+dask==2021.10.0
 gast==0.2.2
 grpcio==1.19.0
 h5py==2.9.0
